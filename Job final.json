@@ -1,0 +1,2378 @@
+{
+	"jobConfig": {
+		"name": "Job final",
+		"description": "",
+		"role": "arn:aws:iam::329113169673:role/LabRole",
+		"command": "glueetl",
+		"version": "4.0",
+		"runtime": null,
+		"workerType": "G.1X",
+		"numberOfWorkers": 10,
+		"maxCapacity": 10,
+		"jobRunQueuingEnabled": false,
+		"maxRetries": 0,
+		"timeout": 480,
+		"maxConcurrentRuns": 1,
+		"security": "none",
+		"scriptName": "Job final.py",
+		"scriptLocation": "s3://aws-glue-assets-329113169673-us-east-1/scripts/",
+		"language": "python-3",
+		"spark": true,
+		"sparkConfiguration": "standard",
+		"jobParameters": [],
+		"tags": [],
+		"jobMode": "DEVELOPER_MODE",
+		"createdOn": "2025-05-01T05:07:50.182Z",
+		"developerMode": true,
+		"connectionsList": [
+			"Redshift connection"
+		],
+		"temporaryDirectory": "s3://aws-glue-assets-329113169673-us-east-1/temporary/",
+		"glueHiveMetastore": true,
+		"etlAutoTuning": true,
+		"metrics": true,
+		"observabilityMetrics": true,
+		"pythonPath": "s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_common.py,s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_uuid.py",
+		"bookmark": "job-bookmark-disable",
+		"sparkPath": "s3://aws-glue-assets-329113169673-us-east-1/sparkHistoryLogs/",
+		"flexExecution": false,
+		"minFlexWorkers": null,
+		"maintenanceWindow": null,
+		"dataLineage": false
+	},
+	"dag": {
+		"node-1745379319448": {
+			"nodeId": "node-1745379319448",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682567892610"
+			],
+			"name": "Rename and Filter StockItems Columns",
+			"generatedNodeName": "RenameandFilterStockItemsColumns_node1745379319448",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "stockitemid_r",
+					"fromPath": [
+						"stockitemid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "stockitemname",
+					"fromPath": [
+						"stockitemname"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "colorid",
+					"fromPath": [
+						"colorid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "size",
+					"fromPath": [
+						"size"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "unitprice",
+					"fromPath": [
+						"unitprice"
+					],
+					"toType": "double",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "StockItemUUID",
+					"fromPath": [
+						"StockItemUUID"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682700934837": {
+			"nodeId": "node-1682700934837",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682700370511"
+			],
+			"name": "Generate OrderDates Dimension PK",
+			"generatedNodeName": "GenerateOrderDatesDimensionPK_node1682700934837",
+			"classification": "Transform",
+			"type": "DynamicTransform",
+			"parameters": [
+				{
+					"name": "colName",
+					"value": [
+						"OrderDateUUID"
+					],
+					"isOptional": true,
+					"type": "str",
+					"listType": null
+				}
+			],
+			"functionName": "gs_uuid",
+			"path": "s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_uuid.py",
+			"version": "1.0.0",
+			"transformName": "gs_uuid",
+			"outputSchemas": [
+				[
+					{
+						"key": "orderdate",
+						"fullPath": [
+							"orderdate"
+						],
+						"type": "date",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "OrderDateUUID",
+						"fullPath": [
+							"OrderDateUUID"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					}
+				]
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682701567111": {
+			"nodeId": "node-1682701567111",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1745377262933",
+				"node-1682700934837"
+			],
+			"name": "Order Join OrderDates",
+			"generatedNodeName": "OrderJoinOrderDates_node1682701567111",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "equijoin",
+			"columns": [
+				{
+					"from": "node-1745377262933",
+					"keys": [
+						"orderdate_l"
+					]
+				},
+				{
+					"from": "node-1682700934837",
+					"keys": [
+						"orderdate"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682702317281": {
+			"nodeId": "node-1682702317281",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682700934837"
+			],
+			"name": "Load OrderDates Dimension Table",
+			"generatedNodeName": "LoadOrderDatesDimensionTable_node1682702317281",
+			"classification": "DataSink",
+			"type": "AmazonRedshift",
+			"streamingBatchInterval": 100,
+			"data": {
+				"accessType": "connection",
+				"sourceType": "table",
+				"connection": {
+					"value": "Redshift connection",
+					"label": "Redshift connection",
+					"description": "No description available. Version: 2"
+				},
+				"schema": {
+					"value": "public",
+					"label": "public",
+					"description": null
+				},
+				"catalogDatabase": null,
+				"catalogRedshiftTable": null,
+				"catalogRedshiftSchema": null,
+				"table": {
+					"value": "dim_orderdates",
+					"label": "dim_orderdates",
+					"description": null
+				},
+				"catalogTable": null,
+				"tempDir": "s3://uniandes-bi-lab3-202510-source",
+				"iamRole": null,
+				"sampleQuery": null,
+				"preAction": null,
+				"postAction": null,
+				"action": "drop",
+				"tableSchema": [
+					{
+						"value": "orderdate",
+						"label": "orderdate",
+						"description": "DATE"
+					},
+					{
+						"value": "OrderDateUUID",
+						"label": "OrderDateUUID",
+						"description": "VARCHAR"
+					}
+				],
+				"selectedColumns": [],
+				"crawlerConnection": null,
+				"tablePrefix": null,
+				"upsert": false,
+				"mergeAction": "simple",
+				"mergeWhenMatched": "update",
+				"mergeWhenNotMatched": "insert",
+				"mergeClause": null,
+				"stagingTable": "public.dim_orderdates_temp_9r2n0c",
+				"advancedOptions": []
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745377139836": {
+			"nodeId": "node-1745377139836",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682698771061"
+			],
+			"name": "Select OrderDate Column",
+			"generatedNodeName": "SelectOrderDateColumn_node1745377139836",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "orderid",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "customerid",
+					"fromPath": [
+						"customerid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "salespersonpersonid",
+					"fromPath": [
+						"salespersonpersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "pickedbypersonid",
+					"fromPath": [
+						"pickedbypersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "contactpersonid",
+					"fromPath": [
+						"contactpersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "backorderorderid",
+					"fromPath": [
+						"backorderorderid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "orderdate",
+					"fromPath": [
+						"orderdate"
+					],
+					"toType": "date",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "expecteddeliverydate",
+					"fromPath": [
+						"expecteddeliverydate"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "customerpurchaseordernumber",
+					"fromPath": [
+						"customerpurchaseordernumber"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "isundersupplybackordered",
+					"fromPath": [
+						"isundersupplybackordered"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "comments",
+					"fromPath": [
+						"comments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "deliveryinstructions",
+					"fromPath": [
+						"deliveryinstructions"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "internalcomments",
+					"fromPath": [
+						"internalcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "pickingcompletedwhen",
+					"fromPath": [
+						"pickingcompletedwhen"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedwhen",
+					"fromPath": [
+						"lasteditedwhen"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745368781506": {
+			"nodeId": "node-1745368781506",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1745386937519"
+			],
+			"name": "Amazon Redshift",
+			"generatedNodeName": "AmazonRedshift_node1745368781506",
+			"classification": "DataSink",
+			"type": "AmazonRedshift",
+			"streamingBatchInterval": 100,
+			"data": {
+				"accessType": "connection",
+				"sourceType": "table",
+				"connection": {
+					"value": "Redshift connection",
+					"label": "Redshift connection",
+					"description": "No description available. Version: 2"
+				},
+				"schema": {
+					"value": "public",
+					"label": "public",
+					"description": null
+				},
+				"catalogDatabase": null,
+				"catalogRedshiftTable": null,
+				"catalogRedshiftSchema": null,
+				"table": {
+					"value": "fact_orders",
+					"label": "fact_orders",
+					"description": null
+				},
+				"catalogTable": null,
+				"tempDir": "s3://uniandes-bi-lab3-202510-source",
+				"iamRole": null,
+				"sampleQuery": null,
+				"preAction": null,
+				"postAction": null,
+				"action": "drop",
+				"tableSchema": [
+					{
+						"value": "colorid",
+						"label": "colorid",
+						"description": "INTEGER"
+					},
+					{
+						"value": "OrderDateUUID",
+						"label": "OrderDateUUID",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "size",
+						"label": "size",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "StockItemUUID",
+						"label": "StockItemUUID",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "stockitemname",
+						"label": "stockitemname",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "quantity",
+						"label": "quantity",
+						"description": "INTEGER"
+					},
+					{
+						"value": "taxrate",
+						"label": "taxrate",
+						"description": "DOUBLE PRECISION"
+					},
+					{
+						"value": "unitprice",
+						"label": "unitprice",
+						"description": "DOUBLE PRECISION"
+					}
+				],
+				"selectedColumns": [],
+				"crawlerConnection": null,
+				"tablePrefix": null,
+				"upsert": false,
+				"mergeAction": "simple",
+				"mergeWhenMatched": "update",
+				"mergeWhenNotMatched": "insert",
+				"mergeClause": null,
+				"stagingTable": "public.fact_orders_temp_abryfs",
+				"advancedOptions": []
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1": {
+			"nodeId": "node-1",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Extract StockItems",
+			"generatedNodeName": "ExtractStockItems_node1",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": false,
+			"format": "csv",
+			"paths": [
+				"s3://uniandes-bi-lab3-202510-source/data_StockItems.csv"
+			],
+			"compressionType": null,
+			"exclusions": [],
+			"groupFiles": null,
+			"groupSize": null,
+			"recurse": null,
+			"maxBand": null,
+			"maxFilesInBand": null,
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"enableSamplePath": false,
+				"samplePath": "s3://uniandes-bi-lab3-202510-source/data_StockItems.csv",
+				"boundedOption": null
+			},
+			"separator": ";",
+			"escaper": "",
+			"quoteChar": "\"",
+			"multiline": null,
+			"withHeader": true,
+			"writeHeader": null,
+			"skipFirst": null,
+			"optimizePerformance": false,
+			"outputSchemas": [
+				[
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "supplierid",
+						"fullPath": [
+							"supplierid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "unitpackageid",
+						"fullPath": [
+							"unitpackageid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "outerpackageid",
+						"fullPath": [
+							"outerpackageid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "brand",
+						"fullPath": [
+							"brand"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "leadtimedays",
+						"fullPath": [
+							"leadtimedays"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "quantityperouter",
+						"fullPath": [
+							"quantityperouter"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "ischillerstock",
+						"fullPath": [
+							"ischillerstock"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "barcode",
+						"fullPath": [
+							"barcode"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "recommendedretailprice",
+						"fullPath": [
+							"recommendedretailprice"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "typicalweightperunit",
+						"fullPath": [
+							"typicalweightperunit"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "marketingcomments",
+						"fullPath": [
+							"marketingcomments"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "internalcomments",
+						"fullPath": [
+							"internalcomments"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "photo",
+						"fullPath": [
+							"photo"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "customfields",
+						"fullPath": [
+							"customfields"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "tags",
+						"fullPath": [
+							"tags"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "searchdetails",
+						"fullPath": [
+							"searchdetails"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "validfrom",
+						"fullPath": [
+							"validfrom"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "validto",
+						"fullPath": [
+							"validto"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					}
+				]
+			],
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682567892610": {
+			"nodeId": "node-1682567892610",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1745376782926"
+			],
+			"name": "Generate StockItems Dimension PK",
+			"generatedNodeName": "GenerateStockItemsDimensionPK_node1682567892610",
+			"classification": "Transform",
+			"type": "DynamicTransform",
+			"parameters": [
+				{
+					"name": "colName",
+					"value": [
+						"StockItemUUID"
+					],
+					"isOptional": true,
+					"type": "str",
+					"listType": null
+				}
+			],
+			"functionName": "gs_uuid",
+			"path": "s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_uuid.py",
+			"version": "1.0.0",
+			"transformName": "gs_uuid",
+			"outputSchemas": [
+				[
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "int",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "double",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "StockItemUUID",
+						"fullPath": [
+							"StockItemUUID"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					}
+				]
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1746206702916": {
+			"nodeId": "node-1746206702916",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1746203857007"
+			],
+			"name": "Load_PackageTypes_to_Redshift",
+			"generatedNodeName": "Load_PackageTypes_to_Redshift_node1746206702916",
+			"classification": "DataSink",
+			"type": "AmazonRedshift",
+			"streamingBatchInterval": 100,
+			"data": {
+				"accessType": "connection",
+				"sourceType": "table",
+				"connection": {
+					"value": "Redshift connection",
+					"label": "Redshift connection",
+					"description": "No description available. Version: 2"
+				},
+				"schema": {
+					"value": "public",
+					"label": "public",
+					"description": null
+				},
+				"catalogDatabase": null,
+				"catalogRedshiftTable": null,
+				"catalogRedshiftSchema": null,
+				"table": {
+					"value": "dim_packagetypes",
+					"label": "dim_packagetypes",
+					"description": null
+				},
+				"catalogTable": null,
+				"tempDir": "s3://aws-glue-assets-329113169673-us-east-1/temporary/",
+				"iamRole": null,
+				"sampleQuery": null,
+				"preAction": null,
+				"postAction": null,
+				"action": "drop",
+				"tableSchema": [
+					{
+						"value": "packagetypeid",
+						"label": "packagetypeid",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "packagetypename",
+						"label": "packagetypename",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "lasteditedby",
+						"label": "lasteditedby",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "validfrom",
+						"label": "validfrom",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "validto",
+						"label": "validto",
+						"description": "VARCHAR"
+					}
+				],
+				"selectedColumns": [],
+				"crawlerConnection": null,
+				"tablePrefix": null,
+				"upsert": false,
+				"mergeAction": "simple",
+				"mergeWhenMatched": "update",
+				"mergeWhenNotMatched": "insert",
+				"mergeClause": null,
+				"stagingTable": "public.dim_packagetypes_temp_r101ke",
+				"advancedOptions": []
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1746203857007": {
+			"nodeId": "node-1746203857007",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1746137194594"
+			],
+			"name": "Change Schema",
+			"generatedNodeName": "ChangeSchema_node1746203857007",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "packagetypeid",
+					"fromPath": [
+						"packagetypeid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "packagetypename",
+					"fromPath": [
+						"packagetypename"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "validfrom",
+					"fromPath": [
+						"validfrom"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "validto",
+					"fromPath": [
+						"validto"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-3": {
+			"nodeId": "node-3",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682567892610"
+			],
+			"name": "Load StockItems Dimension Table",
+			"generatedNodeName": "LoadStockItemsDimensionTable_node3",
+			"classification": "DataSink",
+			"type": "AmazonRedshift",
+			"streamingBatchInterval": 100,
+			"data": {
+				"accessType": "connection",
+				"sourceType": "table",
+				"connection": {
+					"value": "Redshift connection",
+					"label": "Redshift connection",
+					"description": "No description available. Version: 2"
+				},
+				"schema": {
+					"value": "public",
+					"label": "public",
+					"description": null
+				},
+				"catalogDatabase": null,
+				"catalogRedshiftTable": null,
+				"catalogRedshiftSchema": null,
+				"table": {
+					"value": "dim_stockitems",
+					"label": "dim_stockitems",
+					"description": null
+				},
+				"catalogTable": null,
+				"tempDir": "s3://uniandes-bi-lab3-202510-source",
+				"iamRole": null,
+				"sampleQuery": null,
+				"preAction": null,
+				"postAction": null,
+				"action": "drop",
+				"tableSchema": [
+					{
+						"value": "stockitemid",
+						"label": "stockitemid",
+						"description": "INTEGER"
+					},
+					{
+						"value": "stockitemname",
+						"label": "stockitemname",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "colorid",
+						"label": "colorid",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "size",
+						"label": "size",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "unitprice",
+						"label": "unitprice",
+						"description": "DOUBLE PRECISION"
+					},
+					{
+						"value": "StockItemUUID",
+						"label": "StockItemUUID",
+						"description": "VARCHAR"
+					}
+				],
+				"selectedColumns": [],
+				"crawlerConnection": null,
+				"tablePrefix": null,
+				"upsert": false,
+				"mergeAction": "simple",
+				"mergeWhenMatched": "update",
+				"mergeWhenNotMatched": "insert",
+				"mergeClause": null,
+				"stagingTable": "public.dim_stockitems_temp_tv3x6p",
+				"advancedOptions": []
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745376782926": {
+			"nodeId": "node-1745376782926",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1"
+			],
+			"name": "Filter StockItems Columns",
+			"generatedNodeName": "FilterStockItemsColumns_node1745376782926",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "stockitemid",
+					"fromPath": [
+						"stockitemid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "stockitemname",
+					"fromPath": [
+						"stockitemname"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "supplierid",
+					"fromPath": [
+						"supplierid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "colorid",
+					"fromPath": [
+						"colorid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "unitpackageid",
+					"fromPath": [
+						"unitpackageid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "outerpackageid",
+					"fromPath": [
+						"outerpackageid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "brand",
+					"fromPath": [
+						"brand"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "size",
+					"fromPath": [
+						"size"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "leadtimedays",
+					"fromPath": [
+						"leadtimedays"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "quantityperouter",
+					"fromPath": [
+						"quantityperouter"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "ischillerstock",
+					"fromPath": [
+						"ischillerstock"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "barcode",
+					"fromPath": [
+						"barcode"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "taxrate",
+					"fromPath": [
+						"taxrate"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "unitprice",
+					"fromPath": [
+						"unitprice"
+					],
+					"toType": "double",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "recommendedretailprice",
+					"fromPath": [
+						"recommendedretailprice"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "typicalweightperunit",
+					"fromPath": [
+						"typicalweightperunit"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "marketingcomments",
+					"fromPath": [
+						"marketingcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "internalcomments",
+					"fromPath": [
+						"internalcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "photo",
+					"fromPath": [
+						"photo"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "customfields",
+					"fromPath": [
+						"customfields"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "tags",
+					"fromPath": [
+						"tags"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "searchdetails",
+					"fromPath": [
+						"searchdetails"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "validfrom",
+					"fromPath": [
+						"validfrom"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "validto",
+					"fromPath": [
+						"validto"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745377262933": {
+			"nodeId": "node-1745377262933",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682698771061"
+			],
+			"name": "Filter Orders Columns",
+			"generatedNodeName": "FilterOrdersColumns_node1745377262933",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "orderid",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "customerid",
+					"fromPath": [
+						"customerid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "salespersonpersonid",
+					"fromPath": [
+						"salespersonpersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "pickedbypersonid",
+					"fromPath": [
+						"pickedbypersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "contactpersonid",
+					"fromPath": [
+						"contactpersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "backorderorderid",
+					"fromPath": [
+						"backorderorderid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "orderdate_l",
+					"fromPath": [
+						"orderdate"
+					],
+					"toType": "date",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "expecteddeliverydate",
+					"fromPath": [
+						"expecteddeliverydate"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "customerpurchaseordernumber",
+					"fromPath": [
+						"customerpurchaseordernumber"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "isundersupplybackordered",
+					"fromPath": [
+						"isundersupplybackordered"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "comments",
+					"fromPath": [
+						"comments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "deliveryinstructions",
+					"fromPath": [
+						"deliveryinstructions"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "internalcomments",
+					"fromPath": [
+						"internalcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "pickingcompletedwhen",
+					"fromPath": [
+						"pickingcompletedwhen"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedwhen",
+					"fromPath": [
+						"lasteditedwhen"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745377484611": {
+			"nodeId": "node-1745377484611",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682701567111"
+			],
+			"name": "Rename and Filter Order-OrderDates Columns",
+			"generatedNodeName": "RenameandFilterOrderOrderDatesColumns_node1745377484611",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "OrderDate",
+					"fromPath": [
+						"OrderDate"
+					],
+					"toType": "date",
+					"fromType": "date",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "OrderDateUUID",
+					"fromPath": [
+						"OrderDateUUID"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "orderid_r",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "orderdate_l",
+					"fromPath": [
+						"orderdate_l"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682644044063": {
+			"nodeId": "node-1682644044063",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Extract OrderLines",
+			"generatedNodeName": "ExtractOrderLines_node1682644044063",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": false,
+			"format": "csv",
+			"paths": [
+				"s3://uniandes-bi-lab3-202510-source/data_OrderLines.csv"
+			],
+			"compressionType": null,
+			"exclusions": [],
+			"groupFiles": null,
+			"groupSize": null,
+			"recurse": null,
+			"maxBand": null,
+			"maxFilesInBand": null,
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"enableSamplePath": false,
+				"samplePath": "s3://uniandes-bi-lab3-202510-source/data_OrderLines.csv",
+				"boundedOption": null
+			},
+			"separator": ";",
+			"escaper": "",
+			"quoteChar": "\"",
+			"multiline": null,
+			"withHeader": true,
+			"writeHeader": null,
+			"skipFirst": null,
+			"optimizePerformance": false,
+			"outputSchemas": [
+				[
+					{
+						"key": "orderlineid",
+						"fullPath": [
+							"orderlineid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "description",
+						"fullPath": [
+							"description"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "packagetypeid",
+						"fullPath": [
+							"packagetypeid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "quantity",
+						"fullPath": [
+							"quantity"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "pickedquantity",
+						"fullPath": [
+							"pickedquantity"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					}
+				]
+			],
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682645044112": {
+			"nodeId": "node-1682645044112",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682644044063"
+			],
+			"name": "Filter OrderLines Columns",
+			"generatedNodeName": "FilterOrderLinesColumns_node1682645044112",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "orderlineid",
+					"fromPath": [
+						"orderlineid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "orderid",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "stockitemid",
+					"fromPath": [
+						"stockitemid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "description",
+					"fromPath": [
+						"description"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "packagetypeid",
+					"fromPath": [
+						"packagetypeid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "quantity",
+					"fromPath": [
+						"quantity"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "unitprice",
+					"fromPath": [
+						"unitprice"
+					],
+					"toType": "double",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "taxrate",
+					"fromPath": [
+						"taxrate"
+					],
+					"toType": "double",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "pickedquantity",
+					"fromPath": [
+						"pickedquantity"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682700370511": {
+			"nodeId": "node-1682700370511",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1745377139836"
+			],
+			"name": "Drop OrderDate Duplicates",
+			"generatedNodeName": "DropOrderDateDuplicates_node1682700370511",
+			"classification": "Transform",
+			"type": "DropDuplicates",
+			"parentsValid": true,
+			"calculatedType": "",
+			"columns": [],
+			"codeGenVersion": 2
+		},
+		"node-1746137194594": {
+			"nodeId": "node-1746137194594",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "PackageTypes",
+			"generatedNodeName": "PackageTypes_node1746137194594",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": false,
+			"format": "csv",
+			"paths": [
+				"s3://uniandes-bi-lab3-202510-source/data_PackageTypes.csv"
+			],
+			"compressionType": null,
+			"exclusions": [],
+			"groupFiles": null,
+			"groupSize": null,
+			"recurse": true,
+			"maxBand": null,
+			"maxFilesInBand": null,
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"enableSamplePath": false,
+				"samplePath": "s3://uniandes-bi-lab3-202510-source/data_PackageTypes.csv",
+				"boundedOption": null
+			},
+			"separator": ";",
+			"escaper": "",
+			"quoteChar": "\"",
+			"multiline": null,
+			"withHeader": true,
+			"writeHeader": null,
+			"skipFirst": null,
+			"optimizePerformance": false,
+			"outputSchemas": [
+				[
+					{
+						"key": "packagetypeid",
+						"fullPath": [
+							"packagetypeid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "packagetypename",
+						"fullPath": [
+							"packagetypename"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "validfrom",
+						"fullPath": [
+							"validfrom"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "validto",
+						"fullPath": [
+							"validto"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					}
+				]
+			],
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682698771061": {
+			"nodeId": "node-1682698771061",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Extract Orders",
+			"generatedNodeName": "ExtractOrders_node1682698771061",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": false,
+			"format": "csv",
+			"paths": [
+				"s3://uniandes-bi-lab3-202510-source/data_Orders.csv"
+			],
+			"compressionType": null,
+			"exclusions": [],
+			"groupFiles": null,
+			"groupSize": null,
+			"recurse": null,
+			"maxBand": null,
+			"maxFilesInBand": null,
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"enableSamplePath": false,
+				"samplePath": "s3://uniandes-bi-lab3-202510-source/data_Orders.csv",
+				"boundedOption": null
+			},
+			"separator": ";",
+			"escaper": "",
+			"quoteChar": "\"",
+			"multiline": null,
+			"withHeader": true,
+			"writeHeader": null,
+			"skipFirst": null,
+			"optimizePerformance": false,
+			"outputSchemas": [
+				[
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "customerid",
+						"fullPath": [
+							"customerid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "salespersonpersonid",
+						"fullPath": [
+							"salespersonpersonid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "pickedbypersonid",
+						"fullPath": [
+							"pickedbypersonid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "contactpersonid",
+						"fullPath": [
+							"contactpersonid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "backorderorderid",
+						"fullPath": [
+							"backorderorderid"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "orderdate",
+						"fullPath": [
+							"orderdate"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "expecteddeliverydate",
+						"fullPath": [
+							"expecteddeliverydate"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "customerpurchaseordernumber",
+						"fullPath": [
+							"customerpurchaseordernumber"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "isundersupplybackordered",
+						"fullPath": [
+							"isundersupplybackordered"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "comments",
+						"fullPath": [
+							"comments"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "deliveryinstructions",
+						"fullPath": [
+							"deliveryinstructions"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "internalcomments",
+						"fullPath": [
+							"internalcomments"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "pickingcompletedwhen",
+						"fullPath": [
+							"pickingcompletedwhen"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					},
+					{
+						"key": "lasteditedwhen",
+						"fullPath": [
+							"lasteditedwhen"
+						],
+						"type": "string",
+						"glueStudioType": null,
+						"children": null
+					}
+				]
+			],
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745386937519": {
+			"nodeId": "node-1745386937519",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682702861653"
+			],
+			"name": "Change Schema",
+			"generatedNodeName": "ChangeSchema_node1745386937519",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "stockitemid",
+					"fromPath": [
+						"stockitemid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "colorid",
+					"fromPath": [
+						"colorid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "OrderDateUUID",
+					"fromPath": [
+						"OrderDateUUID"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "orderid",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "size",
+					"fromPath": [
+						"size"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "StockItemUUID",
+					"fromPath": [
+						"StockItemUUID"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "stockitemname",
+					"fromPath": [
+						"stockitemname"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "orderid_r",
+					"fromPath": [
+						"orderid_r"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "quantity",
+					"fromPath": [
+						"quantity"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": ".unitprice",
+					"fromPath": [
+						".unitprice"
+					],
+					"toType": "double",
+					"fromType": "double",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "stockitemid_r",
+					"fromPath": [
+						"stockitemid_r"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "taxrate",
+					"fromPath": [
+						"taxrate"
+					],
+					"toType": "double",
+					"fromType": "double",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "unitprice",
+					"fromPath": [
+						"unitprice"
+					],
+					"toType": "double",
+					"fromType": "double",
+					"dropped": false,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682702861653": {
+			"nodeId": "node-1682702861653",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682644347781",
+				"node-1745377484611"
+			],
+			"name": "OrderLines-StockItems Join OrderDates",
+			"generatedNodeName": "OrderLinesStockItemsJoinOrderDates_node1682702861653",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "equijoin",
+			"columns": [
+				{
+					"from": "node-1682644347781",
+					"keys": [
+						"orderid"
+					]
+				},
+				{
+					"from": "node-1745377484611",
+					"keys": [
+						"orderid_r"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682644347781": {
+			"nodeId": "node-1682644347781",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682645044112",
+				"node-1745379319448"
+			],
+			"name": "OrderLines Join StockItems",
+			"generatedNodeName": "OrderLinesJoinStockItems_node1682644347781",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "equijoin",
+			"columns": [
+				{
+					"from": "node-1682645044112",
+					"keys": [
+						"stockitemid"
+					]
+				},
+				{
+					"from": "node-1745379319448",
+					"keys": [
+						"stockitemid_r"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		}
+	},
+	"hasBeenSaved": false,
+	"usageProfileName": null,
+	"script": "import sys\nfrom awsglue.transforms import *\nfrom awsglue.utils import getResolvedOptions\nfrom pyspark.context import SparkContext\nfrom awsglue.context import GlueContext\nfrom awsglue.job import Job\nimport gs_uuid\nfrom awsglue.dynamicframe import DynamicFrame\nfrom awsglue import DynamicFrame\nfrom pyspark.sql import functions as SqlFuncs\n\nargs = getResolvedOptions(sys.argv, ['JOB_NAME'])\nsc = SparkContext()\nglueContext = GlueContext(sc)\nspark = glueContext.spark_session\njob = Job(glueContext)\njob.init(args['JOB_NAME'], args)\n\n# Script generated for node Extract StockItems\nExtractStockItems_node1 = glueContext.create_dynamic_frame.from_options(format_options={\"quoteChar\": \"\\\"\", \"withHeader\": True, \"separator\": \";\", \"optimizePerformance\": False}, connection_type=\"s3\", format=\"csv\", connection_options={\"paths\": [\"s3://uniandes-bi-lab3-202510-source/data_StockItems.csv\"]}, transformation_ctx=\"ExtractStockItems_node1\")\n\n# Script generated for node Extract OrderLines\nExtractOrderLines_node1682644044063 = glueContext.create_dynamic_frame.from_options(format_options={\"quoteChar\": \"\\\"\", \"withHeader\": True, \"separator\": \";\", \"optimizePerformance\": False}, connection_type=\"s3\", format=\"csv\", connection_options={\"paths\": [\"s3://uniandes-bi-lab3-202510-source/data_OrderLines.csv\"]}, transformation_ctx=\"ExtractOrderLines_node1682644044063\")\n\n# Script generated for node PackageTypes\nPackageTypes_node1746137194594 = glueContext.create_dynamic_frame.from_options(format_options={\"quoteChar\": \"\\\"\", \"withHeader\": True, \"separator\": \";\", \"optimizePerformance\": False}, connection_type=\"s3\", format=\"csv\", connection_options={\"paths\": [\"s3://uniandes-bi-lab3-202510-source/data_PackageTypes.csv\"], \"recurse\": True}, transformation_ctx=\"PackageTypes_node1746137194594\")\n\n# Script generated for node Extract Orders\nExtractOrders_node1682698771061 = glueContext.create_dynamic_frame.from_options(format_options={\"quoteChar\": \"\\\"\", \"withHeader\": True, \"separator\": \";\", \"optimizePerformance\": False}, connection_type=\"s3\", format=\"csv\", connection_options={\"paths\": [\"s3://uniandes-bi-lab3-202510-source/data_Orders.csv\"]}, transformation_ctx=\"ExtractOrders_node1682698771061\")\n\n# Script generated for node Filter StockItems Columns\nFilterStockItemsColumns_node1745376782926 = ApplyMapping.apply(frame=ExtractStockItems_node1, mappings=[(\"stockitemid\", \"string\", \"stockitemid\", \"int\"), (\"stockitemname\", \"string\", \"stockitemname\", \"string\"), (\"colorid\", \"string\", \"colorid\", \"string\"), (\"size\", \"string\", \"size\", \"string\"), (\"unitprice\", \"string\", \"unitprice\", \"double\")], transformation_ctx=\"FilterStockItemsColumns_node1745376782926\")\n\n# Script generated for node Filter OrderLines Columns\nFilterOrderLinesColumns_node1682645044112 = ApplyMapping.apply(frame=ExtractOrderLines_node1682644044063, mappings=[(\"orderid\", \"string\", \"orderid\", \"int\"), (\"stockitemid\", \"string\", \"stockitemid\", \"int\"), (\"quantity\", \"string\", \"quantity\", \"int\"), (\"unitprice\", \"string\", \"unitprice\", \"double\"), (\"taxrate\", \"string\", \"taxrate\", \"double\")], transformation_ctx=\"FilterOrderLinesColumns_node1682645044112\")\nOrderLines_df = FilterOrderLinesColumns_node1682645044112.toDF()\nOrderLines_df = OrderLines_df.withColumn(\n    \"totalprice\", SqlFuncs.col(\"quantity\") * SqlFuncs.col(\"unitprice\")\n)\nFilterOrderLinesColumns_node1682645044112 = DynamicFrame.fromDF(\n    OrderLines_df, glueContext, \"FilterOrderLinesColumns_node1682645044112\"\n)\n# Script generated for node Change Schema\nChangeSchema_node1746203857007 = ApplyMapping.apply(frame=PackageTypes_node1746137194594, mappings=[(\"packagetypeid\", \"string\", \"packagetypeid\", \"string\"), (\"packagetypename\", \"string\", \"packagetypename\", \"string\"), (\"lasteditedby\", \"string\", \"lasteditedby\", \"string\"), (\"validfrom\", \"string\", \"validfrom\", \"string\"), (\"validto\", \"string\", \"validto\", \"string\")], transformation_ctx=\"ChangeSchema_node1746203857007\")\n\n# Script generated for node Select OrderDate Column\nSelectOrderDateColumn_node1745377139836 = ApplyMapping.apply(frame=ExtractOrders_node1682698771061, mappings=[(\"orderdate\", \"string\", \"orderdate\", \"date\")], transformation_ctx=\"SelectOrderDateColumn_node1745377139836\")\n\n# Script generated for node Filter Orders Columns\nFilterOrdersColumns_node1745377262933 = ApplyMapping.apply(frame=ExtractOrders_node1682698771061, mappings=[(\"orderid\", \"string\", \"orderid\", \"int\"), (\"orderdate\", \"string\", \"orderdate_l\", \"date\")], transformation_ctx=\"FilterOrdersColumns_node1745377262933\")\n\n# Script generated for node Generate StockItems Dimension PK\nGenerateStockItemsDimensionPK_node1682567892610 = FilterStockItemsColumns_node1745376782926.gs_uuid(colName=\"StockItemUUID\")\n\n# Script generated for node Drop OrderDate Duplicates\nDropOrderDateDuplicates_node1682700370511 =  DynamicFrame.fromDF(SelectOrderDateColumn_node1745377139836.toDF().dropDuplicates(), glueContext, \"DropOrderDateDuplicates_node1682700370511\")\n\n# Script generated for node Rename and Filter StockItems Columns\nRenameandFilterStockItemsColumns_node1745379319448 = ApplyMapping.apply(frame=GenerateStockItemsDimensionPK_node1682567892610, mappings=[(\"stockitemid\", \"int\", \"stockitemid_r\", \"int\"), (\"stockitemname\", \"string\", \"stockitemname\", \"string\"), (\"colorid\", \"string\", \"colorid\", \"int\"), (\"size\", \"string\", \"size\", \"string\"), (\"unitprice\", \"string\", \"unitprice\", \"double\"), (\"StockItemUUID\", \"string\", \"StockItemUUID\", \"string\")], transformation_ctx=\"RenameandFilterStockItemsColumns_node1745379319448\")\n\n# Script generated for node Generate OrderDates Dimension PK\nGenerateOrderDatesDimensionPK_node1682700934837 = DropOrderDateDuplicates_node1682700370511.gs_uuid(colName=\"OrderDateUUID\")\n\n# Script generated for node OrderLines Join StockItems\nOrderLinesJoinStockItems_node1682644347781 = Join.apply(frame1=FilterOrderLinesColumns_node1682645044112, frame2=RenameandFilterStockItemsColumns_node1745379319448, keys1=[\"stockitemid\"], keys2=[\"stockitemid_r\"], transformation_ctx=\"OrderLinesJoinStockItems_node1682644347781\")\n\n# Script generated for node Order Join OrderDates\nOrderJoinOrderDates_node1682701567111 = Join.apply(frame1=FilterOrdersColumns_node1745377262933, frame2=GenerateOrderDatesDimensionPK_node1682700934837, keys1=[\"orderdate_l\"], keys2=[\"orderdate\"], transformation_ctx=\"OrderJoinOrderDates_node1682701567111\")\n\n# Script generated for node Rename and Filter Order-OrderDates Columns\nRenameandFilterOrderOrderDatesColumns_node1745377484611 = ApplyMapping.apply(frame=OrderJoinOrderDates_node1682701567111, mappings=[(\"OrderDateUUID\", \"string\", \"OrderDateUUID\", \"string\"), (\"orderid\", \"string\", \"orderid_r\", \"string\")], transformation_ctx=\"RenameandFilterOrderOrderDatesColumns_node1745377484611\")\n\n# Script generated for node OrderLines-StockItems Join OrderDates\nOrderLinesStockItemsJoinOrderDates_node1682702861653 = Join.apply(frame1=OrderLinesJoinStockItems_node1682644347781, frame2=RenameandFilterOrderOrderDatesColumns_node1745377484611, keys1=[\"orderid\"], keys2=[\"orderid_r\"], transformation_ctx=\"OrderLinesStockItemsJoinOrderDates_node1682702861653\")\n\n# Script generated for node Change Schema\nChangeSchema_node1745386937519 = ApplyMapping.apply(frame=OrderLinesStockItemsJoinOrderDates_node1682702861653, mappings=[(\"colorid\", \"int\", \"colorid\", \"int\"), (\"OrderDateUUID\", \"string\", \"OrderDateUUID\", \"string\"), (\"size\", \"string\", \"size\", \"string\"), (\"StockItemUUID\", \"string\", \"StockItemUUID\", \"string\"), (\"stockitemname\", \"string\", \"stockitemname\", \"string\"), (\"quantity\", \"int\", \"quantity\", \"int\"), (\"taxrate\", \"double\", \"taxrate\", \"double\"), (\"unitprice\", \"double\", \"unitprice\", \"double\"),(\"totalprice\", \"double\", \"totalprice\", \"double\")], transformation_ctx=\"ChangeSchema_node1745386937519\")\n\n# Script generated for node Load_PackageTypes_to_Redshift\nLoad_PackageTypes_to_Redshift_node1746206702916 = glueContext.write_dynamic_frame.from_options(frame=ChangeSchema_node1746203857007, connection_type=\"redshift\", connection_options={\"redshiftTmpDir\": \"s3://aws-glue-assets-329113169673-us-east-1/temporary/\", \"useConnectionProperties\": \"true\", \"dbtable\": \"public.dim_packagetypes\", \"connectionName\": \"Redshift connection\", \"preactions\": \"DROP TABLE IF EXISTS public.dim_packagetypes; CREATE TABLE IF NOT EXISTS public.dim_packagetypes (packagetypeid VARCHAR, packagetypename VARCHAR, lasteditedby VARCHAR, validfrom VARCHAR, validto VARCHAR);\"}, transformation_ctx=\"Load_PackageTypes_to_Redshift_node1746206702916\")\n\n# Script generated for node Load StockItems Dimension Table\nLoadStockItemsDimensionTable_node3 = glueContext.write_dynamic_frame.from_options(frame=GenerateStockItemsDimensionPK_node1682567892610, connection_type=\"redshift\", connection_options={\"redshiftTmpDir\": \"s3://uniandes-bi-lab3-202510-source\", \"useConnectionProperties\": \"true\", \"dbtable\": \"public.dim_stockitems\", \"connectionName\": \"Redshift connection\", \"preactions\": \"DROP TABLE IF EXISTS public.dim_stockitems; CREATE TABLE IF NOT EXISTS public.dim_stockitems (stockitemid INTEGER, stockitemname VARCHAR, colorid VARCHAR, size VARCHAR, unitprice DOUBLE PRECISION, StockItemUUID VARCHAR);\"}, transformation_ctx=\"LoadStockItemsDimensionTable_node3\")\n\n# Script generated for node Load OrderDates Dimension Table\nLoadOrderDatesDimensionTable_node1682702317281 = glueContext.write_dynamic_frame.from_options(frame=GenerateOrderDatesDimensionPK_node1682700934837, connection_type=\"redshift\", connection_options={\"redshiftTmpDir\": \"s3://uniandes-bi-lab3-202510-source\", \"useConnectionProperties\": \"true\", \"dbtable\": \"public.dim_orderdates\", \"connectionName\": \"Redshift connection\", \"preactions\": \"DROP TABLE IF EXISTS public.dim_orderdates; CREATE TABLE IF NOT EXISTS public.dim_orderdates (orderdate DATE, OrderDateUUID VARCHAR);\"}, transformation_ctx=\"LoadOrderDatesDimensionTable_node1682702317281\")\n\n# Script generated for node Amazon Redshift\nAmazonRedshift_node1745368781506 = glueContext.write_dynamic_frame.from_options(\n    frame=ChangeSchema_node1745386937519,\n    connection_type=\"redshift\",\n    connection_options={\n        \"redshiftTmpDir\": \"s3://uniandes-bi-lab3-202510-source\",\n        \"useConnectionProperties\": \"true\",\n        \"dbtable\": \"public.fact_orders\",\n        \"connectionName\": \"Redshift connection\",\n        \"preactions\": \"\"\"\n            DROP TABLE IF EXISTS public.fact_orders;\n            CREATE TABLE IF NOT EXISTS public.fact_orders (\n                colorid INTEGER,\n                OrderDateUUID VARCHAR,\n                size VARCHAR,\n                StockItemUUID VARCHAR,\n                stockitemname VARCHAR,\n                quantity INTEGER,\n                taxrate DOUBLE PRECISION,\n                unitprice DOUBLE PRECISION,\n                totalprice DOUBLE PRECISION\n            );\n        \"\"\"\n    },\n    transformation_ctx=\"AmazonRedshift_node1745368781506\"\n)\n\njob.commit()"
+}
